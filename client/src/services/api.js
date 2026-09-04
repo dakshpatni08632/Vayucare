@@ -22,6 +22,9 @@ export async function geocodeCity(cityName) {
 // Fetch live weather data via Express backend proxy
 export async function fetchWeatherData(lat, lon) {
   const response = await fetch(`${API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`);
+  if (response.status === 429) {
+    throw new Error('Weather service is temporarily busy, please wait a moment and try again.');
+  }
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Weather fetch failed (${response.status})`);

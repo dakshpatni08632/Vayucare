@@ -49,7 +49,11 @@ app.get('/api/geocode', async (req, res) => {
   }
 });
 
-// 2. Weather API (Open-Meteo)
+// Simple in-memory cache for weather data (5 minute TTL)
+const weatherCache = new Map();
+const WEATHER_CACHE_TTL_MS = 5 * 60 * 1000;
+
+// 2. Weather API (Open-Meteo) with 5-minute In-Memory Cache
 app.get('/api/weather', async (req, res) => {
   try {
     const { lat, lon } = req.query;
@@ -57,12 +61,40 @@ app.get('/api/weather', async (req, res) => {
       return res.status(400).json({ error: 'Latitude (lat) and Longitude (lon) are required' });
     }
 
+    // Cache key based on coordinates (rounded to 2 decimal places to capture nearby queries)
+    const latNum = Number(lat);
+    const lonNum = Number(lon);
+    const cacheKey = !isNaN(latNum) && !isNaN(lonNum)
+      ? `${latNum.toFixed(2)},${lonNum.toFixed(2)}`
+      : `${lat},${lon}`;
+
+    const cached = weatherCache.get(cacheKey);
+    const now = Date.now();
+
+    if (cached && (now - cached.timestamp < WEATHER_CACHE_TTL_MS)) {
+      console.log(`[Cache Hit] Serving weather data for key: ${cacheKey}`);
+      return res.json(cached.data);
+    }
+
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
     const response = await fetch(url);
+
+    if (response.status === 429) {
+      console.warn(`Open-Meteo rate limit hit (429) for key ${cacheKey}`);
+      return res.status(429).json({
+        error: 'Weather service is temporarily busy, please wait a moment and try again.'
+      });
+    }
+
     if (!response.ok) {
       throw new Error(`Open-Meteo Weather failed with status ${response.status}`);
     }
+
     const data = await response.json();
+
+    // Cache successful response
+    weatherCache.set(cacheKey, { timestamp: now, data });
+
     return res.json(data);
   } catch (error) {
     console.error('Weather error:', error.message);
