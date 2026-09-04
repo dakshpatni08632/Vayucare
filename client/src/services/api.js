@@ -3,10 +3,11 @@ import { calculateIndianCPCB_AQI } from '../utils/aqiUtils';
 /**
  * VayuCare Frontend API Service Layer
  */
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Geocode city name to lat/lon via Express backend proxy
 export async function geocodeCity(cityName) {
-  const response = await fetch(`/api/geocode?q=${encodeURIComponent(cityName)}`);
+  const response = await fetch(`${API_BASE_URL}/api/geocode?q=${encodeURIComponent(cityName)}`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Geocoding failed (${response.status})`);
@@ -20,7 +21,7 @@ export async function geocodeCity(cityName) {
 
 // Fetch live weather data via Express backend proxy
 export async function fetchWeatherData(lat, lon) {
-  const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+  const response = await fetch(`${API_BASE_URL}/api/weather?lat=${lat}&lon=${lon}`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `Weather fetch failed (${response.status})`);
@@ -43,7 +44,7 @@ export async function fetchWeatherData(lat, lon) {
 
 // Fetch AQI data via Express backend proxy (WAQI)
 export async function fetchAQIData(lat, lon) {
-  const response = await fetch(`/api/aqi?lat=${lat}&lon=${lon}`);
+  const response = await fetch(`${API_BASE_URL}/api/aqi?lat=${lat}&lon=${lon}`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `AQI fetch failed (${response.status})`);
@@ -74,7 +75,7 @@ export async function fetchAQIData(lat, lon) {
 
 // Post request to backend Groq LLM advisory generator
 export async function fetchAdvisoryFromBackend(weatherData, aqiData, profile, locationName) {
-  const response = await fetch('/api/advisory', {
+  const response = await fetch(`${API_BASE_URL}/api/advisory`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -95,3 +96,4 @@ export async function fetchAdvisoryFromBackend(weatherData, aqiData, profile, lo
 
   return await response.json();
 }
+
