@@ -5,7 +5,7 @@
 VayuCare combines live weather and air quality data with a user's personal health profile to generate plain-English, AI-personalized safety guidance — instead of the same generic pollution alert shown to everyone.
 
 **Live Demo:** https://vayucare-six.vercel.app/
-**Backend API:** https://vayucares.onrender.com
+
 
 ---
 
