@@ -1,0 +1,18 @@
+{
+  "name": "Arc — Personal Goal Tracker",
+  "short_name": "Arc",
+  "description": "A single-user daily checkpoint tracker for building consistency on personal goals.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f0f",
+  "theme_color": "#1D9E75",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23121a1a%22/><text y=%22.85em%22 x=%225%22 font-size=%2280%22>🎯</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
